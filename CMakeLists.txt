@@ -1,37 +1,71 @@
-cmake_minimum_required(VERSION 3.10)
-project(SecureAudioEmbedding)
+cmake_minimum_required(VERSION 3.16)
+
+project(AdaptiveSteganographySystem VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Incluir las rutas de archivos
-include_directories(include src/model src/controller src/view src/utils)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-# Buscar las bibliotecas de Qt necesarias
-#find_package(Qt5 COMPONENTS Widgets REQUIRED)
-
-# Buscar las bibliotecas de OpenCV
-#find_package(OpenCV REQUIRED)
-
-# Buscar Eigen
-#find_package(Eigen3 REQUIRED)
-
-# Archivos fuente
-file(GLOB_RECURSE SOURCES
-    src/*.cpp
-    src/controller/*.cpp
-    src/model/*.cpp
-    src/view/*.cpp
-    src/utils/*.cpp
+set(PROJECT_SOURCES
+        src/main.cpp
+        src/view/mainwindow.cpp
+        src/view/mainwindow.h
+        src/view/mainwindow.ui
 )
 
-# Crear el ejecutable
-add_executable(SecureAudioEmbedding ${SOURCES})
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(AdaptiveSteganographySystem
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+        src/assets/assets.qrc
+    )
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET AdaptiveSteganographySystem APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+else()
+    if(ANDROID)
+        add_library(AdaptiveSteganographySystem SHARED
+            ${PROJECT_SOURCES}
+        )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(AdaptiveSteganographySystem
+            ${PROJECT_SOURCES}
+        )
+    endif()
+endif()
 
-# Enlazar Qt, OpenCV y Eigen
-target_link_libraries(SecureAudioEmbedding Qt5::Widgets ${OpenCV_LIBS} Eigen3::Eigen)
+target_link_libraries(AdaptiveSteganographySystem PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-# Configuración para archivos de recursos y UI de Qt
-qt5_wrap_ui(UI_HEADERS src/view/MainWindow.ui)
+# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
+# If you are developing for iOS or macOS you should consider setting an
+# explicit, fixed bundle identifier manually though.
+if(${QT_VERSION} VERSION_LESS 6.1.0)
+  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.AdaptiveSteganographySystem)
+endif()
+set_target_properties(AdaptiveSteganographySystem PROPERTIES
+    ${BUNDLE_ID_OPTION}
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
 
-# Incluir los encabezados generados por Qt
-target_include_directories(SecureAudioEmbedding PRIVATE ${CMAKE_BINARY_DIR})
+include(GNUInstallDirs)
+install(TARGETS AdaptiveSteganographySystem
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(AdaptiveSteganographySystem)
+endif()

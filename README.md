@@ -51,8 +51,8 @@ The project follows the **Model-View-Controller (MVC)** architecture for seamles
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/your-username/Adaptive-Steganography-System.git
-   cd Adaptive-Steganography-System
+   git clone https://github.com/novato-intlignt/AdaptiveSteganographySystem.git
+   cd AdaptiveSteganographySystem
    ```
 
 2. **Install Dependencies**
