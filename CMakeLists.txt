@@ -9,33 +9,38 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Encontrar y vincular las bibliotecas necesarias (Qt, OpenCV y libsndfile)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(OpenCV REQUIRED)
+find_package(SndFile REQUIRED)
 
+# Fuentes del proyecto
 set(PROJECT_SOURCES
-        src/main.cpp
-        src/view/mainwindow.cpp
-        src/view/mainwindow.h
-        src/view/mainwindow.ui
+    src/main.cpp
+    src/controller/stegoController.cpp
+    src/controller/stegoController.h
+    src/model/cellularAutomaton.cpp
+    src/model/cellularAutomaton.h
+    src/view/mainwindow.cpp
+    src/view/mainwindow.h
+    src/view/mainwindow.ui
+    src/utils/fileHandler.cpp
+    src/utils/fileHandler.h
 )
 
+# Configuración del ejecutable
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(AdaptiveSteganographySystem
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         src/assets/assets.qrc
     )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET AdaptiveSteganographySystem APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
         add_library(AdaptiveSteganographySystem SHARED
             ${PROJECT_SOURCES}
         )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
         add_executable(AdaptiveSteganographySystem
             ${PROJECT_SOURCES}
@@ -43,11 +48,14 @@ else()
     endif()
 endif()
 
-target_link_libraries(AdaptiveSteganographySystem PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+# Vincular bibliotecas al ejecutable
+target_link_libraries(AdaptiveSteganographySystem PRIVATE 
+    Qt${QT_VERSION_MAJOR}::Widgets 
+    ${OpenCV_LIBS}                  # Vincula OpenCV
+    sndfile                         # Vincula libsndfile
+)
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
+# Configuración para MacOS/iOS
 if(${QT_VERSION} VERSION_LESS 6.1.0)
   set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.AdaptiveSteganographySystem)
 endif()
@@ -59,6 +67,7 @@ set_target_properties(AdaptiveSteganographySystem PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+# Configuración de instalación
 include(GNUInstallDirs)
 install(TARGETS AdaptiveSteganographySystem
     BUNDLE DESTINATION .
@@ -66,6 +75,7 @@ install(TARGETS AdaptiveSteganographySystem
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+# Finalización de Qt en caso de Qt6
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(AdaptiveSteganographySystem)
 endif()
