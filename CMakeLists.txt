@@ -15,6 +15,13 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(OpenCV REQUIRED)
 find_package(SndFile REQUIRED)
 
+include_directories(${CMAKE_SOURCE_DIR}/lib/wavelib/bin/include)
+
+# Especificar la ubicación de la biblioteca
+add_library(wavelib STATIC IMPORTED)
+set_target_properties(wavelib PROPERTIES
+    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/wavelib/bin/lib/libwavelib.a
+)
 # Fuentes del proyecto
 set(PROJECT_SOURCES
     src/main.cpp
@@ -22,6 +29,16 @@ set(PROJECT_SOURCES
     src/controller/stegoController.h
     src/model/cellularAutomaton.cpp
     src/model/cellularAutomaton.h
+    src/model/audioProcessor.cpp
+    src/model/audioProcessor.h
+    src/model/waveletTransform.cpp
+    src/model/waveletTransform.h
+    src/model/LSBHandler.cpp
+    src/model/LSBHandler.h
+    src/model/dataProcessor.cpp
+    src/model/dataProcessor.h
+    src/model/chaosGenerator.cpp
+    src/model/chaosGenerator.h
     src/view/mainwindow.cpp
     src/view/mainwindow.h
     src/view/mainwindow.ui
@@ -53,6 +70,7 @@ target_link_libraries(AdaptiveSteganographySystem PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets 
     ${OpenCV_LIBS}                  # Vincula OpenCV
     sndfile                         # Vincula libsndfile
+    wavelib
 )
 
 # Configuración para MacOS/iOS

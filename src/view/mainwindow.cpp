@@ -20,7 +20,7 @@ void MainWindow::on_selectVideoButton_clicked() {
       this,                                   // Parent
       tr("Select Video File"),                // Title
       QCoreApplication::applicationDirPath(), // Open Dialog Location
-      tr("Video Files(*.mp4)")                // Filter
+      tr("Media Files (*.mp4 *.avi *.mkv *.wav *.mp3)")                // Filter
   );
   if (fileName.isNull() || fileName.isEmpty()) {
     ui->pathVideo->setText("Please select a valid file.");
@@ -74,8 +74,7 @@ void MainWindow::on_retireveButton_clicked() {
   QString pathVideo = ui->pathVideo->text();
   QString pathImage = ui->pathImage->text();
 
-  if (!pathImage.isEmpty() && pathImage != "Please select any file" &&
-      !pathVideo.isEmpty() && pathVideo != "Please select any file") {
+  if (!pathVideo.isEmpty() && pathVideo != "Please select any file") {
     controller.retrieveData(pathVideo.toStdString());
   }
 }
